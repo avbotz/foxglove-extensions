@@ -1,0 +1,18 @@
+{
+  "name": "vision",
+  "displayName": "AVBotz Vision",
+  "description": "A camera view that overlays sub_vision's detections on the frames they were computed from",
+  "publisher": "AVBotz",
+  "homepage": "https://github.com/avbotz/foxglove-extensions",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "main": "./dist/extension.js",
+  "keywords": [],
+  "scripts": {
+    "build": "foxglove-extension build",
+    "foxglove:prepublish": "foxglove-extension build --mode production",
+    "local-install": "foxglove-extension install",
+    "package": "foxglove-extension package"
+  }
+}

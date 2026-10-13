@@ -1,0 +1,8 @@
+packages:
+  - teleop
+  - tuning
+  - vision
+
+# A flat node_modules: foxglove-extension's webpack build resolves ts-loader from the
+# extension directory, which pnpm's isolated layout does not provide.
+nodeLinker: hoisted
