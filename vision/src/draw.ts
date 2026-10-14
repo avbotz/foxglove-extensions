@@ -25,16 +25,34 @@ export type DetectionArray = {
   detections: Detection[];
 };
 
-/** A box in image pixels, with its label and color. */
-export type Box = { x: number; y: number; width: number; height: number; label: string; color: string };
+/** A color, each channel in [0, 1]. */
+export type Rgb = { r: number; g: number; b: number };
 
-/** The same color for a class from frame to frame. */
-export function classColor(classId: string): string {
+/** A box in image pixels, with its label and color. */
+export type Box = { x: number; y: number; width: number; height: number; label: string; color: Rgb };
+
+/** The same color for a class from frame to frame: a hue from its name, at HSL 85% / 55%. */
+export function classColor(classId: string): Rgb {
   let hash = 7;
   for (const char of classId) {
     hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   }
-  return `hsl(${hash % 360} 85% 55%)`;
+  const hue = hash % 360;
+  const saturation = 0.85;
+  const lightness = 0.55;
+  // CSS Color 4's HSL to RGB.
+  const channel = (n: number) => {
+    const k = (n + hue / 30) % 12;
+    return (
+      lightness -
+      saturation * Math.min(lightness, 1 - lightness) * Math.max(-1, Math.min(k - 3, 9 - k, 1))
+    );
+  };
+  return { r: channel(0), g: channel(8), b: channel(4) };
+}
+
+export function cssColor({ r, g, b }: Rgb): string {
+  return `rgb(${r * 255} ${g * 255} ${b * 255})`;
 }
 
 /** The boxes to draw: each detection's best hypothesis, those scoring at least `minScore`. */
@@ -103,7 +121,7 @@ export function drawBoxes(
     const y = fit.dy + box.y * fit.scale;
     const width = box.width * fit.scale;
     const height = box.height * fit.scale;
-    ctx.strokeStyle = box.color;
+    ctx.strokeStyle = cssColor(box.color);
     ctx.strokeRect(x, y, width, height);
     if (!options.labels || box.label === "") {
       continue;
@@ -112,7 +130,7 @@ export function drawBoxes(
     const labelHeight = options.fontPx + 2 * pad;
     // Above the box, or inside it at the top when there is no room.
     const labelY = y - labelHeight >= 0 ? y - labelHeight : y;
-    ctx.fillStyle = box.color;
+    ctx.fillStyle = cssColor(box.color);
     ctx.fillRect(x, labelY, labelWidth, labelHeight);
     ctx.fillStyle = "#000";
     ctx.fillText(box.label, x + pad, labelY + pad);

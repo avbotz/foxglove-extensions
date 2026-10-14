@@ -32,8 +32,14 @@ describe("boxesOf", () => {
 
 describe("classColor", () => {
   it("is stable and differs between classes", () => {
-    expect(classColor("gate")).toBe(classColor("gate"));
-    expect(classColor("gate")).not.toBe(classColor("buoy"));
+    expect(classColor("gate")).toEqual(classColor("gate"));
+    expect(classColor("gate")).not.toEqual(classColor("buoy"));
+  });
+
+  it("is a bright color", () => {
+    const { r, g, b } = classColor("gate");
+    // HSL lightness 55%: the brightest and darkest channels average to 0.55.
+    expect((Math.max(r, g, b) + Math.min(r, g, b)) / 2).toBeCloseTo(0.55);
   });
 });
 

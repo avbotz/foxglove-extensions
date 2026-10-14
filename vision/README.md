@@ -1,6 +1,6 @@
 # AVBotz Vision
 
-One Foxglove panel, **Detections**: a camera view with `sub_vision`'s detections drawn on the frames they were computed from.
+One Foxglove panel, **Detections**: a camera view with `sub_vision`'s detections drawn on the frames they were computed from. The extension also lets Foxglove's own **Image** panel draw them ([below](#in-the-image-panel)).
 
 Set the image topic (`sensor_msgs/msg/Image` or `CompressedImage`; by default the front camera's JPEG copy, `/marlin_v3/front_camera/image_color/compressed`) and the detections topic (`sub_vision_interfaces/msg/DetectionArray`, by default `/marlin_v3/vision/detections`). Frames and detections are paired by their header stamp, which `sub_vision` copies from the source frame, so a box is only ever drawn on the frame it belongs to, never on whatever frame happens to be latest. The footer shows the detector's latency on the frame shown (when its detections arrived, after the frame did), the task and the number of detections, the frame rate and the frame's stamp.
 
@@ -14,4 +14,6 @@ Without any detections for *Detector timeout* (1 s), say with no model loaded, e
 
 Each detection's best hypothesis gives its box a color (stable per class) and its label, `class score`, with the distance in metres when a post-processor ranged the object. *Minimum score* hides detections below it, and *Labels* and *Line width* are in the settings. Raw images may be `rgb8`, `bgr8`, `rgba8`, `bgra8`, `mono8`, `mono16` or `32FC1` (the last two stretched over their range); compressed ones JPEG, PNG or WebP. Instance masks are not part of the message, so they are not drawn.
 
-The `annotation_visualizer` node in `sub_vision` draws the latest detections on the latest frame, on the vehicle, for viewers without this panel; this panel does the drawing on the laptop instead, from the frames and detections the bag records anyway.
+## In the Image panel
+
+The extension converts `sub_vision_interfaces/msg/DetectionArray` to `foxglove.ImageAnnotations`, so any Image panel can draw the detections over its camera: turn the detections topic on under the panel's *Image annotations*, and *Sync timestamps* on to draw each set only on the frame it was computed from (without it, the latest detections go over the latest frame). Boxes and labels are as above, unfiltered by score; there is no frame selection, so the boxes flicker at the detector's rate.
